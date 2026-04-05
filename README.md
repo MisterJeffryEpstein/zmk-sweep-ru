@@ -15,12 +15,6 @@ Ferris Sweep ZMK keymap · Linux · English + Russian · Mouse-free
 
 ---
 
-**Setup in GNOME:**
-Settings → Keyboard → Input Sources → add Russian →
-set the switch shortcut to `Shift+Alt`
-
----
-
 ## Layers
 
 | # | Name | How to reach |
@@ -28,20 +22,37 @@ set the switch shortcut to `Shift+Alt`
 | 0 | Base | always on |
 | 1 | Nav | hold left thumb |
 | 2 | Sym | hold right thumb |
-| 3 | Num | hold both thumbs (Nav+Sym) |
-| 4 | Fun | Nav layer → right thumb |
-| 5 | Mouse | combo V+B to toggle |
+| 3 | Num | Nav → hold right thumb (both thumbs) |
+| 4 | Fun | Nav → tap right thumb |
+| 5 | Mouse | combo V+B toggle |
 
-### Nav layer — left hand controls desktop, right hand navigates
+---
 
-```
-Left hand:                        Right hand:
-Search  WS1  WS2  WS3  Terminal   PgUp  Home  ↑     End    Bspc
-Lock    ←■   □▲   ■→   Close      PgDn  ←     ↓     →      Enter
-Ctrl    Alt  Shft Gui  MvWS1      MvWS2 MvWS3 Tab   Esc    Del
-```
+## Modifiers (Ctrl, Alt, Shift, GUI)
 
-WS = workspace, Mv = move window to workspace, ■ = snap/maximize
+There are no dedicated modifier keys. Modifiers live on the **Nav layer, bottom-left row** as sticky keys:
+
+| Nav layer position | Modifier |
+|--------------------|----------|
+| Z | Ctrl (sticky) |
+| X | Alt (sticky) |
+| C | Shift (sticky) |
+| V | GUI / Super (sticky) |
+
+**Sticky key** = tap once → modifier activates for the next keypress only, then releases automatically.
+
+**Example — Ctrl+C:**
+1. Hold left thumb (enter Nav layer)
+2. Tap Z position (sticky Ctrl activates)
+3. Release left thumb
+4. Tap C
+
+**Example — Ctrl+Alt+Del:**
+1. Hold left thumb
+2. Tap Z (sticky Ctrl)
+3. Tap X (sticky Alt)
+4. Release left thumb
+5. Tap Delete (combo I+O)
 
 ---
 
@@ -56,30 +67,73 @@ WS = workspace, Mv = move window to workspace, ■ = snap/maximize
 | I + O | Delete |
 | F + J | Caps Word |
 | V + B | Toggle Mouse layer |
-| Inner thumbs | Switch EN ↔ RU |
+| Inner thumbs (both) | Switch EN ↔ RU |
+
+---
+
+## How Russian works
+
+ZMK only sends US keycodes — Russian letters appear because Pop!\_OS / GNOME
+has two input sources: English and Russian.
+
+The **inner thumb combo** sends `Shift+Alt` → OS switches input language.
+All layers stay the same, the OS maps keycodes to Cyrillic instead of Latin.
+
+**Setup in GNOME:**
+Settings → Keyboard → Input Sources → add Russian → set switch shortcut to `Shift+Alt`
+
+---
+
+## Nav layer — left hand controls desktop
+
+| Position | Action |
+|----------|--------|
+| Q | App launcher (Super+Space) |
+| W | Workspace 1 |
+| E | Workspace 2 |
+| R | Workspace 3 |
+| T | Terminal |
+| A | Lock screen |
+| S | Snap window left |
+| D | Maximize window |
+| F | Snap window right |
+| G | Close window |
+| Z | Sticky Ctrl |
+| X | Sticky Alt |
+| C | Sticky Shift |
+| V | Sticky GUI |
+| B | Move window → workspace 1 |
+
+Right hand on Nav layer: arrows, Page Up/Down, Home, End, Backspace, Enter, Delete, Tab, Escape.
+
+---
+
+## Bluetooth
+
+Connect: **Fun layer** (hold left thumb → tap right thumb) → tap Q/W/E/R for profiles 0/1/2/3.
+
+To reach Fun layer: hold left thumb (Nav) → while holding, tap right thumb.
 
 ---
 
 ## Hardware
 
 - Ferris Sweep v2.2
-- nice!nano v2 controllers
+- Pro Micro nRF52840 controllers
 - Kailh Choc v1 switches
 - ZMK firmware
 
 ---
 
-## How to flash
+## Flash
 
-1. Go to **Actions** → latest successful build → **Artifacts** → download zip
-2. Unzip — you get two files:
-   - `cradio_left-nice_nano_v2-zmk.uf2`
-   - `cradio_right-nice_nano_v2-zmk.uf2`
-3. Plug in **left half** via USB
-4. Double-press the Reset button → controller shows up as `NICENANO` USB drive
-5. Drag `cradio_left-...uf2` onto the drive — it disconnects automatically
-6. Repeat for right half with the right `.uf2`
-7. Unplug USB, connect both halves with TRRS cable, done
+1. **Actions** → latest build → **Artifacts** → download zip
+2. Double-tap Reset (or short RST+GND twice) → `NICENANO` drive appears
+3. Copy left `.uf2` → left half, right `.uf2` → right half
+
+```bash
+sudo cp cradio_left-nice_nano-zmk.uf2 /media/$USER/NICENANO/
+```
 
 ---
 

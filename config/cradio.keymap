@@ -4,7 +4,7 @@
  * Linux · English + Russian · Mouse-free
  *
  * Russian: OS handles it (GNOME input sources)
- * Combo on inner thumbs → Shift+Alt → OS switches EN↔RU
+ * Combo on inner thumbs sends Shift+Alt → OS switches EN↔RU
  *
  * LAYERS:
  *   0 BASE   — QWERTY
@@ -29,31 +29,11 @@
 #define FUN   4
 #define MOUSE 5
 
-/* Timing */
-#define COMBO_TERM   40
-#define TAPPING_TERM 200
+/* Combo timing */
+#define COMBO_TERM 40
 
 /*
- * Linux desktop shortcuts (Pop!_OS / GNOME defaults)
- * Change these defines if your shortcuts differ
- */
-#define LX_LANG   &kp LS(LALT)       /* Shift+Alt  — switch EN/RU        */
-#define LX_LOCK   &kp LG(L)          /* Super+L    — lock screen          */
-#define LX_TERM   &kp LG(T)          /* Super+T    — terminal             */
-#define LX_SRCH   &kp LG(SPACE)      /* Super+Spc  — app launcher         */
-#define LX_CLOSE  &kp LA(F4)         /* Alt+F4     — close window         */
-#define LX_WMAX   &kp LG(UP)         /* Super+Up   — maximize             */
-#define LX_WL     &kp LG(LEFT)       /* Super+Left — snap left            */
-#define LX_WR     &kp LG(RIGHT)      /* Super+Right— snap right           */
-#define LX_WS1    &kp LG(N1)         /* Super+1    — workspace 1          */
-#define LX_WS2    &kp LG(N2)         /* Super+2    — workspace 2          */
-#define LX_WS3    &kp LG(N3)         /* Super+3    — workspace 3          */
-#define LX_MVWS1  &kp LG(LS(N1))     /* Super+S+1  — move win → ws1       */
-#define LX_MVWS2  &kp LG(LS(N2))     /* Super+S+2  — move win → ws2       */
-#define LX_MVWS3  &kp LG(LS(N3))     /* Super+S+3  — move win → ws3       */
-
-/*
- * Key positions (34 keys total):
+ * Key positions (34 keys):
  *
  *  0  1  2  3  4      5  6  7  8  9
  * 10 11 12 13 14     15 16 17 18 19
@@ -70,60 +50,53 @@
     combos {
         compatible = "zmk,combos";
 
-        /* ESC — Q+W */
         combo_esc {
             timeout-ms = <COMBO_TERM>;
             key-positions = <0 1>;
             bindings = <&kp ESC>;
         };
 
-        /* TAB — A+S */
         combo_tab {
             timeout-ms = <COMBO_TERM>;
             key-positions = <10 11>;
             bindings = <&kp TAB>;
         };
 
-        /* ENTER — J+K */
         combo_enter {
             timeout-ms = <COMBO_TERM>;
             key-positions = <16 17>;
             bindings = <&kp RET>;
         };
 
-        /* BSPC — U+I */
         combo_bspc {
             timeout-ms = <COMBO_TERM>;
             key-positions = <6 7>;
             bindings = <&kp BSPC>;
         };
 
-        /* DEL — I+O */
         combo_del {
             timeout-ms = <COMBO_TERM>;
             key-positions = <7 8>;
             bindings = <&kp DEL>;
         };
 
-        /* CAPS_WORD — F+J (both index fingers) */
         combo_caps_word {
             timeout-ms = <COMBO_TERM>;
             key-positions = <13 16>;
             bindings = <&caps_word>;
         };
 
-        /* MOUSE layer toggle — V+B */
         combo_mouse {
             timeout-ms = <COMBO_TERM>;
             key-positions = <23 24>;
             bindings = <&tog MOUSE>;
         };
 
-        /* EN/RU switch — inner thumbs (31+32) */
+        /* EN/RU switch — inner thumbs → Shift+Alt */
         combo_lang {
             timeout-ms = <COMBO_TERM>;
             key-positions = <31 32>;
-            bindings = <LX_LANG>;
+            bindings = <&kp LS(LALT)>;
         };
     };
 
@@ -132,7 +105,6 @@
 /* ------------------------------------------------------------------ */
 
     behaviors {
-        /* Sticky key with quick-release */
         skq: sticky_key_quick_release {
             compatible = "zmk,behavior-sticky-key";
             #binding-cells = <1>;
@@ -163,16 +135,16 @@
 
         /* ── 1: NAV ──────────────────────────────────────────────── */
         /*
-         * Left hand  → Linux desktop control (windows, workspaces)
-         * Right hand → pure navigation (arrows, page, home/end)
+         * Left: Linux desktop (Super+key shortcuts for Pop!_OS/GNOME)
+         * Right: arrows, page, home/end
          */
         nav_layer {
             display-name = "Nav";
             bindings = <
-                LX_SRCH  LX_WS1   LX_WS2   LX_WS3   LX_TERM       &kp PG_UP  &kp HOME  &kp UP    &kp END    &kp BSPC
-                LX_LOCK  LX_WL    LX_WMAX  LX_WR    LX_CLOSE      &kp PG_DN  &kp LEFT  &kp DOWN  &kp RIGHT  &kp RET
-                &skq LCTRL &skq LALT &skq LSHFT &skq LGUI LX_MVWS1  LX_MVWS2  LX_MVWS3  &kp TAB   &kp ESC    &kp DEL
-                                           &trans   &trans            &trans   &mo FUN
+                &kp LG(SPACE)  &kp LG(N1)      &kp LG(N2)      &kp LG(N3)      &kp LG(T)        &kp PG_UP  &kp HOME  &kp UP    &kp END    &kp BSPC
+                &kp LG(L)      &kp LG(LEFT)    &kp LG(UP)      &kp LG(RIGHT)   &kp LA(F4)        &kp PG_DN  &kp LEFT  &kp DOWN  &kp RIGHT  &kp RET
+                &skq LCTRL     &skq LALT        &skq LSHFT      &skq LGUI       &kp LG(LS(N1))   &kp LG(LS(N2))  &kp LG(LS(N3))  &kp TAB  &kp ESC  &kp DEL
+                                                    &trans   &trans              &trans   &mo FUN
             >;
         };
 
@@ -199,7 +171,6 @@
         };
 
         /* ── 4: FUN ──────────────────────────────────────────────── */
-        /* Bluetooth + media + system */
         fun_layer {
             display-name = "Fun";
             bindings = <
@@ -211,14 +182,13 @@
         };
 
         /* ── 5: MOUSE ────────────────────────────────────────────── */
-        /* Toggle with V+B combo */
         mouse_layer {
             display-name = "Mouse";
             bindings = <
-                &none  &none  &none  &none  &none        &mwh SCROLL_UP   &mkp MB4       &mmv MOVE_UP    &mkp MB5       &mwh SCROLL_UP
-                &none  &none  &none  &none  &none        &mwh SCROLL_DOWN &mmv MOVE_LEFT &mmv MOVE_DOWN  &mmv MOVE_RIGHT &mwh SCROLL_DOWN
-                &none  &none  &none  &none  &none        &none            &mkp LCLK      &mkp MCLK       &mkp RCLK      &none
-                                  &tog MOUSE  &none         &mkp LCLK  &mkp RCLK
+                &none  &none  &none  &none  &none    &msc SCRL_UP   &mkp MB4  &mmv MOVE_UP    &mkp MB5  &msc SCRL_UP
+                &none  &none  &none  &none  &none    &msc SCRL_DOWN &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_RIGHT &msc SCRL_DOWN
+                &none  &none  &none  &none  &none    &none          &mkp LCLK &mkp MCLK       &mkp RCLK &none
+                                  &tog MOUSE  &none     &mkp LCLK  &mkp RCLK
             >;
         };
     };

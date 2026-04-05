@@ -1,0 +1,219 @@
+/*
+ * Ferris Sweep ZMK Keymap
+ * Based on duckyb/zmk-sweep structure
+ * Adapted for: Linux | English + Russian | Mouse-free workflow
+ *
+ * Russian input: handled by OS layout switching (Super+Space or whatever you use)
+ * No HRM — combos + sticky keys like duckyb
+ *
+ * LAYERS:
+ *   0 BASE   — QWERTY
+ *   1 NAV    — arrows, pg, home/end, desktop nav, window management
+ *   2 SYM    — symbols
+ *   3 NUM    — numbers + F-keys
+ *   4 FUN    — Bluetooth, media, system
+ *   5 MOUSE  — mouse keys (scroll, click, move)
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/mouse.h>
+#include <dt-bindings/zmk/outputs.h>
+
+/* Layer aliases */
+#define BASE  0
+#define NAV   1
+#define SYM   2
+#define NUM   3
+#define FUN   4
+#define MOUSE 5
+
+/* Timing */
+#define COMBO_TERM   40
+#define TAPPING_TERM 200
+
+/* Shortcuts for Linux desktop (GNOME / Pop!_OS) */
+#define LX_LOCK   &kp LG(L)          /* Super+L  — lock screen           */
+#define LX_LANG   &kp LS(LALT)       /* Shift+Alt — switch EN/RU layout  */
+#define LX_TERM   &kp LG(T)          /* Super+T  — open terminal         */
+#define LX_CLOSE  &kp LA(F4)         /* Alt+F4   — close window          */
+#define LX_WMAX   &kp LG(UP)         /* Super+Up — maximize window       */
+#define LX_WL     &kp LG(LEFT)       /* Super+Left — snap left           */
+#define LX_WR     &kp LG(RIGHT)      /* Super+Right — snap right         */
+#define LX_WS1    &kp LG(N1)         /* Super+1  — workspace 1           */
+#define LX_WS2    &kp LG(N2)         /* Super+2  — workspace 2           */
+#define LX_WS3    &kp LG(N3)         /* Super+3  — workspace 3           */
+#define LX_MVWS1  &kp LG(LS(N1))     /* Move window to workspace 1       */
+#define LX_MVWS2  &kp LG(LS(N2))     /* Move window to workspace 2       */
+#define LX_MVWS3  &kp LG(LS(N3))     /* Move window to workspace 3       */
+#define LX_SRCH   &kp LG(SPACE)      /* Super+Space — app launcher       */
+
+/* ------------------------------------------------------------------ */
+/*  COMBOS                                                              */
+/* ------------------------------------------------------------------ */
+/*
+ * Key positions (34 keys):
+ *
+ *  0  1  2  3  4      5  6  7  8  9
+ * 10 11 12 13 14     15 16 17 18 19
+ * 20 21 22 23 24     25 26 27 28 29
+ *             30 31  32 33
+ */
+
+/ {
+    combos {
+        compatible = "zmk,combos";
+
+        /* ESC — Q+W (0+1) */
+        combo_esc {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <0 1>;
+            bindings = <&kp ESC>;
+        };
+
+        /* TAB — A+S (10+11) */
+        combo_tab {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <10 11>;
+            bindings = <&kp TAB>;
+        };
+
+        /* ENTER — J+K (16+17) */
+        combo_enter {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <16 17>;
+            bindings = <&kp RET>;
+        };
+
+        /* BSPC — U+I (6+7) */
+        combo_bspc {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <6 7>;
+            bindings = <&kp BSPC>;
+        };
+
+        /* DEL — I+O (7+8) */
+        combo_del {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <7 8>;
+            bindings = <&kp DEL>;
+        };
+
+        /* CAPS_WORD — F+J (3+6) — both index fingers */
+        combo_caps_word {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <13 16>;
+            bindings = <&caps_word>;
+        };
+
+        /* MOUSE layer — V+B (23+24) */
+        combo_mouse {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <23 24>;
+            bindings = <&tog MOUSE>;
+        };
+
+        /* EN/RU switch — both thumb inner keys (31+32) */
+        combo_lang {
+            timeout-ms = <COMBO_TERM>;
+            key-positions = <31 32>;
+            bindings = <LX_LANG>;
+        };
+    };
+
+/* ------------------------------------------------------------------ */
+/*  BEHAVIORS                                                           */
+/* ------------------------------------------------------------------ */
+
+    behaviors {
+        skq: sticky_key_quick_release {
+            compatible = "zmk,behavior-sticky-key";
+            #binding-cells = <1>;
+            bindings = <&kp>;
+            release-after-ms = <1000>;
+            quick-release;
+            ignore-modifiers;
+        };
+    };
+
+/* ------------------------------------------------------------------ */
+/*  KEYMAP                                                              */
+/* ------------------------------------------------------------------ */
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        /* ── 0: BASE ─────────────────────────────────────────────── */
+        base_layer {
+            label = "Base";
+            bindings = <
+                &kp Q    &kp W    &kp E    &kp R    &kp T         &kp Y    &kp U    &kp I    &kp O    &kp P
+                &kp A    &kp S    &kp D    &kp F    &kp G         &kp H    &kp J    &kp K    &kp L    &kp SQT
+                &kp Z    &kp X    &kp C    &kp V    &kp B         &kp N    &kp M    &kp COMMA &kp DOT &kp FSLH
+                                        &lt NAV SPACE  &skq LSHFT    &skq LSHFT  &lt SYM SPACE
+            >;
+        };
+
+        /* ── 1: NAV ──────────────────────────────────────────────── */
+        /*
+         * Left hand: window/workspace management
+         * Right hand: arrows, page, home/end
+         * Goal: never touch mouse for navigation
+         */
+        nav_layer {
+            label = "Nav";
+            bindings = <
+                LX_SRCH  LX_WS1   LX_WS2   LX_WS3   LX_TERM      &kp PG_UP  &kp HOME  &kp UP    &kp END   &kp BSPC
+                LX_LOCK  LX_WL    LX_WMAX  LX_WR    LX_CLOSE     &kp PG_DN  &kp LEFT  &kp DOWN  &kp RIGHT &kp RET
+                &skq LCTRL &skq LALT &skq LSHFT &skq LGUI LX_MVWS1  LX_MVWS2  LX_MVWS3  &kp TAB   &kp ESC   &kp DEL
+                                            &trans  &trans         &trans  &mo FUN
+            >;
+        };
+
+        /* ── 2: SYM ──────────────────────────────────────────────── */
+        sym_layer {
+            label = "Sym";
+            bindings = <
+                &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT    &kp CARET  &kp AMPS   &kp STAR   &kp LPAR   &kp RPAR
+                &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT   &kp BSLH     &kp GRAVE  &kp SEMI   &kp COLON  &kp TILDE  &kp PIPE
+                &kp UNDER  &kp PLUS   &kp LBRC   &kp RBRC   &kp FSLH     &kp QMARK  &kp LT     &kp GT     &kp DQT    &kp AMPS
+                                             &mo NUM  &trans         &trans  &trans
+            >;
+        };
+
+        /* ── 3: NUM ──────────────────────────────────────────────── */
+        num_layer {
+            label = "Num";
+            bindings = <
+                &kp F1   &kp F2   &kp F3   &kp F4   &kp F5         &kp F6   &kp F7   &kp F8   &kp F9   &kp F10
+                &kp N1   &kp N2   &kp N3   &kp N4   &kp N5         &kp N6   &kp N7   &kp N8   &kp N9   &kp N0
+                &kp F11  &kp F12  &kp MINUS &kp EQUAL &kp DOT       &kp COMMA &kp STAR &kp FSLH &kp PLUS &kp MINUS
+                                        &trans  &trans             &trans  &trans
+            >;
+        };
+
+        /* ── 4: FUN ──────────────────────────────────────────────── */
+        /* Bluetooth + media + system */
+        fun_layer {
+            label = "Fun";
+            bindings = <
+                &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_CLR    &kp C_MUTE   &kp C_VOL_DN  &kp C_VOL_UP  &kp C_PP      &kp C_STOP
+                &out OUT_TOG  &none         &none         &none          &sys_reset      &kp C_PREV   &kp C_NEXT    &kp PSCRN     &kp SLCK      &kp PAUSE_BREAK
+                &bootloader   &none         &none         &none          &none           &none        &none         &none         &none         &bootloader
+                                                    &trans  &trans             &trans  &trans
+            >;
+        };
+
+        /* ── 5: MOUSE ────────────────────────────────────────────── */
+        mouse_layer {
+            label = "Mouse";
+            bindings = <
+                &none        &none        &none        &none        &none            &mwh SCROLL_UP   &mkp MB4  &mmv MOVE_UP    &mkp MB5  &mwh SCROLL_UP
+                &none        &none        &none        &none        &none            &mwh SCROLL_DOWN &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_RIGHT &mwh SCROLL_DOWN
+                &none        &none        &none        &none        &none            &none        &mkp LCLK    &mkp MCLK      &mkp RCLK  &none
+                                                &tog MOUSE  &none          &mkp LCLK  &mkp RCLK
+            >;
+        };
+    };
+};

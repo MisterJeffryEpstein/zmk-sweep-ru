@@ -15,15 +15,6 @@ Ferris Sweep ZMK keymap · Linux · English + Russian · Mouse-free
 
 ---
 
-## How Russian works
-
-ZMK only sends standard US keycodes — there are no Russian letters in the firmware.
-Russian appears because Pop!\_OS / GNOME has two input sources: English and Russian.
-
-The keyboard has a **combo on both inner thumb keys** that sends `Shift+Alt` → the OS
-switches its active input language. All layers stay the same; the OS just maps the
-same keycodes to Cyrillic instead of Latin.
-
 **Setup in GNOME:**
 Settings → Keyboard → Input Sources → add Russian →
 set the switch shortcut to `Shift+Alt`

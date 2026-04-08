@@ -2,53 +2,53 @@ layout: {zmk_keyboard: cradio}
 layers:
   Base:
   - [Q, W, E, R, T, Y, U, I, O, P]
-  - [A, S, D, F, G, H, J, K, L, '''']
+  - - {t: A, h: LGUI}
+    - {t: S, h: LALT}
+    - {t: D, h: LSHFT}
+    - {t: F, h: LCTRL}
+    - G
+    - H
+    - {t: J, h: RCTRL}
+    - {t: K, h: RSHFT}
+    - {t: L, h: RALT}
+    - {t: '''', h: RGUI}
   - [Z, X, C, V, B, N, M, ',', ., /]
   - - {t: SPACE, h: Nav}
-    - {t: LSHFT, h: sticky}
-    - {t: LSHFT, h: sticky}
+    - LSHFT
+    - LSHFT
     - {t: SPACE, h: Sym}
   Nav:
   - [Gui+SPACE, Gui+1, Gui+2, Gui+3, Gui+T, PG UP, HOME, UP, END, BSPC]
   - [Gui+L, Gui+LEFT, Gui+UP, Gui+RIGHT, Alt+F4, PG DN, LEFT, DOWN, RIGHT, RET]
-  - - {t: LCTRL, h: sticky}
-    - {t: LALT, h: sticky}
-    - {t: LSHFT, h: sticky}
-    - {t: LGUI, h: sticky}
-    - Gui+Sft+1
-    - Gui+Sft+2
-    - Gui+Sft+3
-    - TAB
-    - ESC
-    - DEL
+  - [LCTRL, LALT, LSHFT, LGUI, Gui+Sft+1, Gui+Sft+2, Gui+Sft+3, TAB, ESC, DEL]
   - - {type: held}
     - {t: ▽, type: trans}
     - {t: ▽, type: trans}
     - {t: ▽, type: trans}
   Sym:
-  - ['!', '@', '#', $, '%', ^, '&', '*', (, )]
-  - ['-', '=', '[', ']', \, '`', ;, ':', '~', '|']
-  - [_, +, '{', '}', /, '?', <, '>', '"', '&']
+  - ['&m_parens', '&m_brackets', '&m_braces', '&m_arrow', '&m_fat_arrow', ^, '&', '*', (, )]
+  - ['&m_and', '&m_or', '&m_eq', '&m_neq', '&m_seq', '-', '=', '[', ']', \]
+  - ['&m_lte', '&m_gte', '&m_scope', '&m_dots', /, _, +, '{', '}', '|']
   - - {t: ▽, type: trans}
     - {t: ▽, type: trans}
     - {t: ▽, type: trans}
     - {type: held}
   Num:
-  - [F1, F2, F3, F4, F5, F6, F7, F8, F9, F10]
-  - ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
   - - {t: BT, h: '0'}
     - {t: BT, h: '1'}
     - {t: BT, h: '2'}
+    - {t: BT, h: '3'}
     - BT CLR
-    - F11
-    - F12
-    - MUTE
-    - VOL DN
-    - VOL UP
-    - PP
+    - F1
+    - F2
+    - F3
+    - F4
+    - F5
+  - [OUT TOG, PREV, PP, NEXT, '&sys_reset', F6, F7, F8, F9, F10]
+  - ['&bootloader', VOL DN, MUTE, VOL UP, '', '1', '2', '3', '4', '5']
   - - {type: held}
     - {t: ▽, type: trans}
-    - {t: ▽, type: trans}
+    - '0'
     - {type: held}
   Mouse:
   - ['', '', '', '', '', '&msc SCRL_UP', '&mkp MB4', '&mmv MOVE_UP', '&mkp MB5', '&msc SCRL_UP']

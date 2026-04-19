@@ -1,21 +1,124 @@
 /*
  * Ferris Sweep ZMK Keymap
- * Linux · English + Russian · Mouse-free
+ * Linux · English + Russian · C + Pascal
  *
- * Features:
- * - Home Row Mods: A=GUI S=Alt D=Shift F=Ctrl (and mirrored on right)
- * - Macros for common programming sequences
- * - Combos for ESC, TAB, ENTER, BSPC, DEL
- * - Conditional layer: NAV+SYM simultaneously = NUM
- * - Mouse layer toggle via V+B combo
- * - EN/RU switch via inner thumbs combo
+ * Философия: sticky keys (без HRM), надёжно, без ложных срабатываний.
  *
- * LAYERS:
- *   0 BASE  — QWERTY + HRM
- *   1 NAV   — arrows, page, home/end, desktop nav
- *   2 SYM   — symbols
- *   3 NUM   — numbers, F-keys, BT, media
- *   4 MOUSE — mouse keys
+ * ════════════════════════════════════════════════════════════════════
+ * КАК ВОЙТИ В BOOTLOADER (режим прошивки)
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * Кнопка &bootloader теперь есть в Mouse слое на [Q].
+ * Это безопасно — Mouse слой не активен по умолчанию,
+ * случайно туда не попадёшь.
+ *
+ * Физические способы (если клава совсем не отвечает):
+ *
+ * СПОСОБ 1 — двойной тап кнопки Reset на контроллере:
+ *   — нажми RST дважды быстро → появится диск NICENANO
+ *   — скопируй .uf2 на диск → клава перезагрузится
+ *
+ * СПОСОБ 2 — замкнуть контакты RST и GND:
+ *   — на nice!nano v2: два крайних контакта снизу платы
+ *   — замкни дважды быстро (пинцет, скрепка)
+ *
+ * СПОСОБ 3 — Linux не монтирует NICENANO:
+ *   lsblk                              # найти диск
+ *   udisksctl mount -b /dev/sdb        # примонтировать
+ *   cp firmware.uf2 /media/$USER/NICENANO/
+ *   # если нет прав:
+ *   sudo usermod -aG plugdev $USER     # один раз, потом перелогинься
+ *
+ * Прошивать ОБЕ половины по отдельности:
+ *   cradio_left-nice_nano-zmk.uf2  → левая
+ *   cradio_right-nice_nano-zmk.uf2 → правая
+ *
+ * ════════════════════════════════════════════════════════════════════
+ * OUT_TOG — переключение USB ↔ Bluetooth
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * Переключает между USB (кабель) и Bluetooth вручную.
+ * Нужен когда подключил кабель но клава продолжает слать ввод по BT.
+ * Теперь в Mouse слое на [E] — не занимает место в NUM.
+ *
+ * ════════════════════════════════════════════════════════════════════
+ * Bluetooth
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * Первое подключение:
+ *   1. Оба больших пальца → NUM
+ *   2. BT_SEL 0 (позиция Z) — выбрать профиль
+ *   3. На устройстве: Bluetooth → найти "Cradio" → подключить
+ *
+ * Переключение между устройствами:
+ *   NUM → BT_SEL 0/1/2/3 (позиции Z/X/C/V)
+ *
+ * Сброс профиля:
+ *   NUM → BT_SEL N → BT_CLR (позиция B)
+ *
+ * ════════════════════════════════════════════════════════════════════
+ * CopyQ — менеджер буфера обмена
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * Установка: sudo apt install copyq
+ * Настройка горячей клавиши:
+ *   CopyQ → Preferences → Shortcuts →
+ *   "Show/hide main window" → назначить Super+V
+ *
+ * Использование:
+ *   — всё что копируешь (Ctrl+C) автоматически сохраняется
+ *   — Super+V → открывается список истории
+ *   — начни печатать → поиск по истории
+ *   — Enter или клик → вставить выбранный элемент
+ *
+ * В Mouse слое [S] отправляет Super+V → открывает CopyQ
+ * прямо во время работы с мышью.
+ *
+ * ════════════════════════════════════════════════════════════════════
+ * Скриншоты (Pop!_OS стандартные сочетания)
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * PrintScr          → весь экран
+ * Alt+PrintScr      → текущее окно
+ * Shift+PrintScr    → выбрать область мышью
+ *
+ * Все три теперь на левой руке в Mouse слое.
+ *
+ * ════════════════════════════════════════════════════════════════════
+ * xkill — убить зависшее окно кликом
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * Установка: sudo apt install x11-utils
+ * Использование: запускается с [C] в Mouse слое →
+ *   курсор становится крестиком → кликни на зависшее окно → убито.
+ * Идеально именно в Mouse слое — правая рука уже на мыши.
+ *
+ * ════════════════════════════════════════════════════════════════════
+ * СЛОИ
+ * ════════════════════════════════════════════════════════════════════
+ *
+ *   0 BASE  — QWERTY
+ *   1 NAV   — стрелки, рабочий стол (левый большой удерж.)
+ *   2 SYM   — символы C и Pascal (правый большой удерж.)
+ *   3 NUM   — цифры 1–0, F-клавиши, BT, медиа (оба больших)
+ *   4 MOUSE — мышь + системный пульт (комбо V+B toggle)
+ *
+ * COMBOS:
+ *   Q+W   → ESC
+ *   A+S   → TAB
+ *   J+K   → ENTER
+ *   U+I   → BACKSPACE
+ *   I+O   → DELETE
+ *   F+J   → CAPS WORD
+ *   V+B   → Toggle MOUSE
+ *   31+32 → Shift+Alt (EN/RU)
+ *
+ * KEY POSITIONS (34 keys):
+ *
+ *  0  1  2  3  4      5  6  7  8  9
+ * 10 11 12 13 14     15 16 17 18 19
+ * 20 21 22 23 24     25 26 27 28 29
+ *             30 31  32 33
  */
 
 #include <behaviors.dtsi>
@@ -24,24 +127,13 @@
 #include <dt-bindings/zmk/mouse.h>
 #include <dt-bindings/zmk/outputs.h>
 
-/* Layers */
 #define BASE  0
 #define NAV   1
 #define SYM   2
 #define NUM   3
 #define MOUSE 4
 
-/* Combo timing */
 #define COMBO_TERM 40
-
-/*
- * Key positions (34 keys):
- *
- *  0  1  2  3  4      5  6  7  8  9
- * 10 11 12 13 14     15 16 17 18 19
- * 20 21 22 23 24     25 26 27 28 29
- *             30 31  32 33
- */
 
 / {
 
@@ -50,126 +142,40 @@
 /* ------------------------------------------------------------------ */
 
     macros {
-        /* -> */
-        m_arrow: m_arrow {
+        /*
+         * Открыть CopyQ: отправляет Super+V
+         * Требует назначить Super+V в CopyQ → Preferences → Shortcuts
+         */
+        m_copyq: m_copyq {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&kp MINUS &kp GT>;
+            bindings = <&kp LG(V)>;
         };
-        /* => */
-        m_fat_arrow: m_fat_arrow {
+
+        /*
+         * xkill: запустить xkill в терминале
+         * Отправляет Super+T (открыть терминал) затем xkill + Enter
+         * Требует чтобы Super+T открывал терминал в Pop!_OS
+         * Альтернатива: назначить xkill напрямую через GNOME shortcuts
+         */
+        m_xkill: m_xkill {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&kp EQUAL &kp GT>;
-        };
-        /* && */
-        m_and: m_and {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp AMPS &kp AMPS>;
-        };
-        /* || */
-        m_or: m_or {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp PIPE &kp PIPE>;
-        };
-        /* != */
-        m_neq: m_neq {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp EXCL &kp EQUAL>;
-        };
-        /* == */
-        m_eq: m_eq {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp EQUAL &kp EQUAL>;
-        };
-        /* === */
-        m_seq: m_seq {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp EQUAL &kp EQUAL &kp EQUAL>;
-        };
-        /* >= */
-        m_gte: m_gte {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp GT &kp EQUAL>;
-        };
-        /* <= */
-        m_lte: m_lte {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LT &kp EQUAL>;
-        };
-        /* :: */
-        m_scope: m_scope {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp COLON &kp COLON>;
-        };
-        /* () */
-        m_parens: m_parens {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LPAR &kp RPAR>;
-        };
-        /* {} */
-        m_braces: m_braces {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LBRC &kp RBRC>;
-        };
-        /* [] */
-        m_brackets: m_brackets {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LBKT &kp RBKT>;
-        };
-        /* ... */
-        m_dots: m_dots {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp DOT &kp DOT &kp DOT>;
+            wait-ms = <50>;
+            bindings =
+                <&kp LG(T)>,
+                <&macro_wait_time 300>,
+                <&kp X &kp K &kp I &kp L &kp L &kp RET>;
         };
     };
 
 /* ------------------------------------------------------------------ */
-/*  BEHAVIORS                                                           */
-/* ------------------------------------------------------------------ */
-
-    behaviors {
-        /* Home Row Mod — balanced flavor, good for typing */
-        hrm: home_row_mod {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <200>;
-            quick-tap-ms = <150>;
-            bindings = <&kp>, <&kp>;
-        };
-
-        /* Layer tap with balanced hold */
-        lt_bal: layer_tap_balanced {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <200>;
-            quick-tap-ms = <150>;
-            bindings = <&mo>, <&kp>;
-        };
-    };
-
-/* ------------------------------------------------------------------ */
-/*  CONDITIONAL LAYERS                                                  */
+/*  TRI-LAYER — оба больших пальца = NUM                               */
 /* ------------------------------------------------------------------ */
 
     conditional_layers {
         compatible = "zmk,conditional-layers";
-        /* NAV + SYM held simultaneously → NUM */
-        num_layer {
+        tri_layer {
             if-layers = <NAV SYM>;
             then-layer = <NUM>;
         };
@@ -182,53 +188,40 @@
     combos {
         compatible = "zmk,combos";
 
-        /* ESC — Q+W */
-        combo_esc {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <0 1>;
-            bindings = <&kp ESC>;
-        };
-        /* TAB — A+S */
-        combo_tab {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <10 11>;
-            bindings = <&kp TAB>;
-        };
-        /* ENTER — J+K */
-        combo_enter {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <16 17>;
-            bindings = <&kp RET>;
-        };
-        /* BSPC — U+I */
-        combo_bspc {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <6 7>;
-            bindings = <&kp BSPC>;
-        };
-        /* DEL — I+O */
-        combo_del {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <7 8>;
-            bindings = <&kp DEL>;
-        };
-        /* CAPS WORD — F+J */
-        combo_caps_word {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <13 16>;
-            bindings = <&caps_word>;
-        };
-        /* MOUSE toggle — V+B */
-        combo_mouse {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <23 24>;
-            bindings = <&tog MOUSE>;
-        };
-        /* EN/RU — inner thumbs (31+32) → Shift+Alt */
-        combo_lang {
-            timeout-ms = <COMBO_TERM>;
-            key-positions = <31 32>;
-            bindings = <&kp LS(LALT)>;
+        combo_esc       { timeout-ms = <COMBO_TERM>; key-positions = <0 1>;   bindings = <&kp ESC>;      }; /* Q+W          */
+        combo_tab       { timeout-ms = <COMBO_TERM>; key-positions = <10 11>; bindings = <&kp TAB>;      }; /* A+S          */
+        combo_enter     { timeout-ms = <COMBO_TERM>; key-positions = <16 17>; bindings = <&kp RET>;      }; /* J+K          */
+        combo_bspc      { timeout-ms = <COMBO_TERM>; key-positions = <6 7>;   bindings = <&kp BSPC>;     }; /* U+I          */
+        combo_del       { timeout-ms = <COMBO_TERM>; key-positions = <7 8>;   bindings = <&kp DEL>;      }; /* I+O          */
+        combo_caps_word { timeout-ms = <COMBO_TERM>; key-positions = <13 16>; bindings = <&caps_word>;   }; /* F+J          */
+        combo_mouse     { timeout-ms = <COMBO_TERM>; key-positions = <23 24>; bindings = <&tog MOUSE>;   }; /* V+B → Mouse  */
+        combo_lang      { timeout-ms = <COMBO_TERM>; key-positions = <31 32>; bindings = <&kp LS(LALT)>; }; /* thumbs→EN/RU */
+    };
+
+/* ------------------------------------------------------------------ */
+/*  BEHAVIORS                                                           */
+/* ------------------------------------------------------------------ */
+
+    behaviors {
+        /*
+         * Sticky key с быстрым сбросом:
+         *   тап 1 раз  → модификатор активен для следующего нажатия
+         *   тап 2 раза → модификатор залипает
+         *   ignore-modifiers → комбинировать несколько sticky подряд
+         *
+         * Пример Ctrl+C:
+         *   удержи NAV → тапни Z (sticky Ctrl) → отпусти NAV → тапни C
+         *
+         * Пример Ctrl+Alt+Del:
+         *   удержи NAV → Z → X → отпусти NAV → тапни I+O (combo Del)
+         */
+        skq: sticky_key_quick_release {
+            compatible = "zmk,behavior-sticky-key";
+            #binding-cells = <1>;
+            bindings = <&kp>;
+            release-after-ms = <1000>;
+            quick-release;
+            ignore-modifiers;
         };
     };
 
@@ -240,71 +233,185 @@
         compatible = "zmk,keymap";
 
         /* ── 0: BASE ─────────────────────────────────────────────── */
-        /*
-         * Home Row Mods on home row:
-         * A=GUI  S=Alt  D=Shift  F=Ctrl  (left)
-         * J=Ctrl K=Shift L=Alt  ;=GUI   (right)
-         */
         base_layer {
             display-name = "Base";
             bindings = <
-                &kp Q         &kp W         &kp E         &kp R         &kp T         &kp Y         &kp U         &kp I         &kp O         &kp P
-                &hrm LGUI A   &hrm LALT S   &hrm LSHFT D  &hrm LCTRL F  &kp G         &kp H         &hrm RCTRL J  &hrm RSHFT K  &hrm RALT L   &hrm RGUI SQT
-                &kp Z         &kp X         &kp C         &kp V         &kp B         &kp N         &kp M         &kp COMMA     &kp DOT       &kp FSLH
-                                                    &lt_bal NAV SPACE   &kp LSHFT     &kp LSHFT     &lt_bal SYM SPACE
+                &kp Q  &kp W  &kp E  &kp R  &kp T      &kp Y  &kp U      &kp I     &kp O    &kp P
+                &kp A  &kp S  &kp D  &kp F  &kp G      &kp H  &kp J      &kp K     &kp L    &kp SQT
+                &kp Z  &kp X  &kp C  &kp V  &kp B      &kp N  &kp M      &kp COMMA &kp DOT  &kp FSLH
+                              &lt NAV SPACE  &skq LSHFT    &skq LSHFT  &lt SYM SPACE
             >;
         };
 
         /* ── 1: NAV ──────────────────────────────────────────────── */
         /*
-         * Left: Linux desktop shortcuts (Pop!_OS / GNOME)
-         * Right: navigation
+         * ┌──────────────────────────────────────────────────────────┐
+         * │ ЛЕВАЯ РУКА — управление рабочим столом GNOME / Pop!_OS   │
+         * └──────────────────────────────────────────────────────────┘
+         *
+         *  [Q] Super+Space    — лаунчер приложений
+         *  [W] Super+1        — рабочий стол 1
+         *  [E] Super+2        — рабочий стол 2
+         *  [R] Super+3        — рабочий стол 3
+         *  [T] Super+T        — открыть терминал
+         *
+         *  [A] Super+L        — заблокировать экран
+         *  [S] Super+←        — snap окна влево
+         *  [D] Super+↑        — развернуть на весь экран
+         *  [F] Super+→        — snap окна вправо
+         *  [G] Alt+F4         — закрыть окно
+         *
+         *  [Z] sticky Ctrl    — Ctrl для следующего нажатия
+         *  [X] sticky Alt     — Alt для следующего нажатия
+         *  [C] sticky Shift   — Shift для следующего нажатия
+         *  [V] sticky GUI     — Super для следующего нажатия
+         *  [B] Super+Shift+1  — переместить окно на рабочий стол 1
+         *
+         * ┌──────────────────────────────────────────────────────────┐
+         * │ ПРАВАЯ РУКА — навигация                                  │
+         * └──────────────────────────────────────────────────────────┘
+         *
+         *  [Y] Page Up   [U] Home   [I] ↑      [O] End    [P] Backspace
+         *  [H] Page Down [J] ←      [K] ↓      [L] →      ['] Enter
+         *  [N] Super+Shift+2        [M] Super+Shift+3
+         *  [,] Tab       [.] Escape [/] Delete
          */
         nav_layer {
             display-name = "Nav";
             bindings = <
-                &kp LG(SPACE)  &kp LG(N1)      &kp LG(N2)    &kp LG(N3)      &kp LG(T)        &kp PG_UP  &kp HOME  &kp UP    &kp END    &kp BSPC
-                &kp LG(L)      &kp LG(LEFT)    &kp LG(UP)    &kp LG(RIGHT)   &kp LA(F4)        &kp PG_DN  &kp LEFT  &kp DOWN  &kp RIGHT  &kp RET
-                &kp LCTRL      &kp LALT         &kp LSHFT     &kp LGUI        &kp LG(LS(N1))   &kp LG(LS(N2))  &kp LG(LS(N3))  &kp TAB  &kp ESC  &kp DEL
-                                                        &trans   &trans          &trans   &trans
+                &kp LG(SPACE)  &kp LG(N1)    &kp LG(N2)   &kp LG(N3)     &kp LG(T)        &kp PG_UP       &kp HOME        &kp UP    &kp END    &kp BSPC
+                &kp LG(L)      &kp LG(LEFT)  &kp LG(UP)   &kp LG(RIGHT)  &kp LA(F4)        &kp PG_DN       &kp LEFT        &kp DOWN  &kp RIGHT  &kp RET
+                &skq LCTRL     &skq LALT     &skq LSHFT   &skq LGUI      &kp LG(LS(N1))   &kp LG(LS(N2))  &kp LG(LS(N3))  &kp TAB   &kp ESC    &kp DEL
+                                                      &trans  &trans           &trans  &trans
             >;
         };
 
         /* ── 2: SYM ──────────────────────────────────────────────── */
         /*
-         * Left: programming macros and brackets
-         * Right: symbols
+         * Левая рука:
+         *  верх:      !  @  #  $  %
+         *  середина:  -  =  [  ]  \     ← массивы, присваивание
+         *  низ:       _  +  {  }  |     ← блоки C, битовое или
+         *
+         * Правая рука:
+         *  верх:      ^  &  *  (  )     ← указатели C, битовые операции
+         *  середина:  `  ;  :  ~  "     ← ; конец строки C, : метки Pascal
+         *  низ:       ?  <  >  .  ⌫     ← сравнения, . для Pascal
+         *
+         * Pascal:
+         *  :=  → : (поз.17) затем = (поз.11)
+         *  ..  → . дважды  (поз.28)
          */
         sym_layer {
             display-name = "Sym";
             bindings = <
-                &m_parens   &m_brackets  &m_braces    &m_arrow     &m_fat_arrow  &kp CARET  &kp AMPS   &kp STAR   &kp LPAR   &kp RPAR
-                &m_and      &m_or        &m_eq        &m_neq       &m_seq        &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT   &kp BSLH
-                &m_lte      &m_gte       &m_scope     &m_dots      &kp FSLH      &kp UNDER  &kp PLUS   &kp LBRC   &kp RBRC   &kp PIPE
-                                                    &trans   &trans              &trans   &trans
+                &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT    &kp CARET  &kp AMPS   &kp STAR   &kp LPAR   &kp RPAR
+                &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT   &kp BSLH     &kp GRAVE  &kp SEMI   &kp COLON  &kp TILDE  &kp DQT
+                &kp UNDER  &kp PLUS   &kp LBRC   &kp RBRC   &kp PIPE     &kp QMARK  &kp LT     &kp GT     &kp DOT    &kp BSPC
+                                            &trans  &trans     &trans  &trans
             >;
         };
 
         /* ── 3: NUM ──────────────────────────────────────────────── */
-        /* Activated by holding NAV+SYM simultaneously */
+        /*
+         * Активируется удержанием ОБОИХ больших пальцев.
+         *
+         *  верх:  1  2  3  4  5  |  6  7  8  9  0
+         *  сред:  F1 F2 F3 F4 F5 | F6 F7 F8 F9 F10
+         *
+         *  Нижний ряд левая рука — Bluetooth:
+         *   [Z] BT_SEL 0   — профиль 0
+         *   [X] BT_SEL 1   — профиль 1
+         *   [C] BT_SEL 2   — профиль 2
+         *   [V] BT_SEL 3   — профиль 3
+         *   [B] BT_CLR     — сбросить текущий профиль
+         *
+         *  Нижний ряд правая рука:
+         *   [N] F11
+         *   [M] F12
+         *   [,] Mute       — заглушить звук
+         *   [.] Vol-       — тише
+         *   [/] Vol+       — громче
+         *
+         *  Правый большой:
+         *   C_PP            — Play/Pause (работает в любом плеере)
+         */
         num_layer {
             display-name = "Num";
             bindings = <
-                &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_CLR    &kp F1   &kp F2   &kp F3   &kp F4   &kp F5
-                &out OUT_TOG  &kp C_PREV    &kp C_PP      &kp C_NEXT    &sys_reset      &kp F6   &kp F7   &kp F8   &kp F9   &kp F10
-                &bootloader   &kp C_VOL_DN  &kp C_MUTE    &kp C_VOL_UP  &none           &kp N1   &kp N2   &kp N3   &kp N4   &kp N5
-                                                    &trans   &trans          &kp N0   &trans
+                &kp N1        &kp N2        &kp N3        &kp N4        &kp N5        &kp N6   &kp N7   &kp N8        &kp N9        &kp N0
+                &kp F1        &kp F2        &kp F3        &kp F4        &kp F5        &kp F6   &kp F7   &kp F8        &kp F9        &kp F10
+                &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_CLR    &kp F11  &kp F12  &kp C_MUTE    &kp C_VOL_DN  &kp C_VOL_UP
+                                                      &trans  &trans     &kp C_PP  &trans
             >;
         };
 
         /* ── 4: MOUSE ────────────────────────────────────────────── */
+        /*
+         * Активация/выключение: комбо V+B — toggle.
+         * Выключить: снова V+B, или [B] на левой руке, или [30] большой палец.
+         *
+         * ┌──────────────────────────────────────────────────────────┐
+         * │ ЛЕВАЯ РУКА — системный пульт                             │
+         * └──────────────────────────────────────────────────────────┘
+         *
+         *  [Q] &bootloader      — войти в режим прошивки
+         *                         (безопасно — Mouse слой не активен по умолчанию)
+         *  [W] &sys_reset       — мягкая перезагрузка контроллера
+         *                         (без входа в bootloader, просто рестарт ZMK)
+         *  [E] &out OUT_TOG     — переключить USB ↔ Bluetooth
+         *                         (нужен когда подключил кабель но клава шлёт по BT)
+         *  [R] PrintScr         — скриншот всего экрана
+         *  [T] Alt+PrintScr     — скриншот текущего окна
+         *
+         *  [A] Shift+PrintScr   — скриншот области (выбрать мышью — правая рука тут же)
+         *  [S] Super+V → CopyQ  — открыть историю буфера обмена
+         *                         (требует: CopyQ → Preferences → Shortcuts → Super+V)
+         *  [D] C_BRI_DN         — уменьшить яркость экрана
+         *  [F] C_BRI_UP         — увеличить яркость экрана
+         *  [G] Ctrl+Shift+V     — вставить без форматирования
+         *                         (работает в браузере, терминале, большинстве редакторов)
+         *
+         *  [Z] Super+E          — открыть файловый менеджер Nautilus
+         *  [X] —                — свободно
+         *  [C] xkill macro      — убить зависшее окно кликом мыши
+         *                         курсор станет крестиком → кликни правой рукой на окно
+         *                         требует: sudo apt install x11-utils
+         *  [V] —                — свободно
+         *  [B] &tog MOUSE       — выключить Mouse слой
+         *
+         * ┌──────────────────────────────────────────────────────────┐
+         * │ ПРАВАЯ РУКА — движение курсора и клики                   │
+         * └──────────────────────────────────────────────────────────┘
+         *
+         *  верх:     SCRL_UP   MB4(назад)   MOVE_UP    MB5(вперёд)  SCRL_UP
+         *  середина: SCRL_DN   MOVE_LEFT    MOVE_DOWN  MOVE_RIGHT   SCRL_DN
+         *  низ:      —         LCLK         MCLK       RCLK         —
+         *
+         *  Большие пальцы:
+         *   [30] tog MOUSE   — выключить слой
+         *   [32] LCLK        — левый клик
+         *   [33] RCLK        — правый клик
+         */
         mouse_layer {
             display-name = "Mouse";
             bindings = <
-                &none  &none  &none  &none  &none    &msc SCRL_UP    &mkp MB4       &mmv MOVE_UP    &mkp MB5        &msc SCRL_UP
-                &none  &none  &none  &none  &none    &msc SCRL_DOWN  &mmv MOVE_LEFT &mmv MOVE_DOWN  &mmv MOVE_RIGHT &msc SCRL_DOWN
-                &none  &none  &none  &none  &none    &none           &mkp LCLK      &mkp MCLK       &mkp RCLK       &none
-                                  &tog MOUSE  &none     &mkp LCLK  &mkp RCLK
+             /* [Q]           [W]           [E]              [R]          [T]              */
+                &bootloader   &sys_reset    &out OUT_TOG     &kp PSCRN    &kp LA(PSCRN)
+             /* [Y]              [U]             [I]             [O]              [P]           */
+                &msc SCRL_UP    &mkp MB4        &mmv MOVE_UP    &mkp MB5         &msc SCRL_UP
+
+             /* [A]               [S]       [D]           [F]           [G]                  */
+                &kp LS(PSCRN)   &m_copyq   &kp C_BRI_DN  &kp C_BRI_UP  &kp LC(LS(V))
+             /* [H]              [J]              [K]             [L]              [']           */
+                &msc SCRL_DOWN  &mmv MOVE_LEFT   &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &msc SCRL_DOWN
+
+             /* [Z]          [X]    [C]        [V]    [B]          */
+                &kp LG(E)    &none  &m_xkill   &none  &tog MOUSE
+             /* [N]    [M]         [,]        [.]        [/]   */
+                &none  &mkp LCLK   &mkp MCLK  &mkp RCLK  &none
+
+                &tog MOUSE  &none     &mkp LCLK  &mkp RCLK
             >;
         };
     };
